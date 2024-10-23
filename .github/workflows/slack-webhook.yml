@@ -1,18 +1,25 @@
-const express = require("express");
-const app = express();
-app.use(express.json());  // To handle JSON payloads
+name: Slack Webhook Handler
 
-// Route to handle Slack's challenge request
-app.post("/slack/events", (req, res) => {
-  if (req.body.challenge) {
-    res.status(200).send(req.body.challenge);  // Respond with the challenge
-  } else {
-    res.status(400).send("No challenge found.");
-  }
-});
+on:
+  workflow_dispatch: # Allows manual triggering for testing
+  issue_comment: # For testing purposes, responds to comments on issues
 
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+jobs:
+  handle-webhook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for URL Verification Challenge
+        if: github.event.issue.body == 'url_verification' # Simulate challenge response for testing
+        run: |
+          echo "Responding to URL verification challenge..."
+          echo "Challenge: ${{ github.event.comment.body }}" # Simulated challenge response
+
+      - name: Handle Slack Message Event
+        if: github.event.action == 'created' && github.event.issue.title == 'slack-message' # Simulating a message event
+        run: |
+          echo "Handling Slack message event..."
+          USER_ID="User"
+          MESSAGE_TEXT="${{ github.event.comment.body }}" # Assuming comment body is the message text
+          echo "Received message from $USER_ID: \"$MESSAGE_TEXT\""
+          echo "Response: Hello @${USER_ID}, you said: \"$MESSAGE_TEXT\""
