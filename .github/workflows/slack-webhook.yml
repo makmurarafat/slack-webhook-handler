@@ -1,24 +1,4 @@
-name: Slack Webhook Handler
 
-on:
-  workflow_dispatch: # Allows manual triggering
-  issue_comment: # Respond to issue comments (for testing)
-  push:
-    branches:
-      - main
-
-jobs:
-  handle-webhook:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
-
-      - name: Run the Webhook Handler
-        run: |
-          echo "Handling Slack Webhook..."
-          # You can add your webhook handling logic here
 app.post('/slack/events', async (req, res) => {
   const { type, event } = req.body;
 
