@@ -1,23 +1,18 @@
+const express = require("express");
+const app = express();
+app.use(express.json());  // To handle JSON payloads
 
-app.post('/slack/events', async (req, res) => {
-  const { type, event } = req.body;
-
-  if (type === 'url_verification') {
-    return res.status(200).send(event.challenge);
+// Route to handle Slack's challenge request
+app.post("/slack/events", (req, res) => {
+  if (req.body.challenge) {
+    res.status(200).send(req.body.challenge);  // Respond with the challenge
+  } else {
+    res.status(400).send("No challenge found.");
   }
+});
 
-  // Handle the message event
-  if (event && event.type === 'message' && !event.subtype) {
-    const channelId = event.channel;
-    const userId = event.user;
-    const messageText = event.text;
-
-    // Respond to the message
-    await app.client.chat.postMessage({
-      channel: channelId,
-      text: `Hello <@${userId}>! You said: "${messageText}"`,
-    });
-  }
-
-  res.status(200).send('Event received');
+// Start the server
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
